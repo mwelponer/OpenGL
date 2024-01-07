@@ -14,11 +14,11 @@ find_library( COCOA_LIBRARY Cocoa )
 find_library( IOKit_LIBRARY IOKit )
 
 # GLFW - https://www.glfw.org/download.html
-set( GLFW_INCLUDE_DIRS dependencies/glfw/include )
-set( GLFW_LIBRARIES dependencies/glfw/lib-x86_64 )
+set( GLFW_INCLUDE_DIRS ../dependencies/glfw/include )
+set( GLFW_LIBRARIES ../dependencies/glfw/lib-x86_64 )
 # GLEW - brew install glew
-set( GLEW_INCLUDE_DIRS dependencies/glew/include )
-set( GLEW_LIBRARIES dependencies/glew/lib )
+set( GLEW_INCLUDE_DIRS ../dependencies/glew/include )
+set( GLEW_LIBRARIES ../dependencies/glew/lib )
 
 set( OPENGL-SRC
     main.cpp
