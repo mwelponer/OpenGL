@@ -1,0 +1,2 @@
+- OpenGL environment with GLFW and GLEW
+- draw a triangle using openGL legacy (old version)
