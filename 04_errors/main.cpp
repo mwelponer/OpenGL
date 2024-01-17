@@ -4,6 +4,7 @@
 #include <sstream>
 #include <filesystem>
 
+
 // GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -11,6 +12,34 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
+
+#define ASSERT(x) if (!(x)) __builtin_trap();
+#define GLCall(x) GLClearError();\
+    x;\
+    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+
+
+/**
+ * @brief used to clear all errors
+ * 
+ */
+static void GLClearError(){
+    while(glGetError() != GL_NO_ERROR);
+}
+
+/**
+ * @brief used to print all errors
+ * 
+ */
+static bool GLLogCall(const char* function, const char* file, int line){
+    while(GLenum error = glGetError()){
+        std::cout << "[OpenGl Error] (" << error << "): " << function << 
+        " " << file << ":" << line << std::endl;
+        return false;
+    }
+    return true;
+}
 
 struct ShaderProgramSource {
     std::string VertexShader;
@@ -162,12 +191,6 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);  
     glViewport(0, 0, width, height);
 
-    // // Get the current working directory
-    // std::filesystem::path currentPath = std::filesystem::current_path();
-    // // Print the current working directory
-    // std::cout << "Current working directory: " << currentPath << std::endl;
-    
-
     ShaderProgramSource source = parseShader("../res/shaders/Basic.shader");
     // // Create the shader program from the shader sources
     GLuint shaderProgram = CreateShader(source.VertexShader, source.FragmentShader);
@@ -177,17 +200,6 @@ int main()
 
     //////// 2 TRIANGLES
 
-    // Set up vertex data (and buffer(s)) and attribute pointers
-    //GLfloat vertices[] = {
-    //  // First triangle
-    //   0.5f,  0.5f,  // Top Right
-    //   0.5f, -0.5f,  // Bottom Right
-    //  -0.5f,  0.5f,  // Top Left 
-    //  // Second triangle
-    //   0.5f, -0.5f,  // Bottom Right
-    //  -0.5f, -0.5f,  // Bottom Left
-    //  -0.5f,  0.5f   // Top Left
-    //}; 
     GLfloat vertices[] = {
          0.5f,  0.5f, 0.0f,  // Top Right
          0.5f, -0.5f, 0.0f,  // Bottom Right
@@ -239,11 +251,14 @@ int main()
 
 
         // 2 TRIENGLES
-        // Draw our first triangle
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        //GLClearError();
+        // so here I have introduced on purpose an error: 
+        // GL_INT instead of GL_UNSIGNED_INT
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, 0));
+        //ASSERT(GLLogCall());
         glBindVertexArray(0);
 
 
