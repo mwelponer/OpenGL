@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project( GLFW-CMake-starter VERSION 0.1.0 LANGUAGES C CXX)
+project( indexBuffer VERSION 0.1.0 LANGUAGES C CXX)
 
 # set the build variant Degub/Release
 set(CMAKE_BUILD_TYPE "Debug")

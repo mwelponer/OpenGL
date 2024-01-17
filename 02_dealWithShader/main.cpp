@@ -1,4 +1,8 @@
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <filesystem>
 
 // GLEW
 #define GLEW_STATIC
@@ -8,25 +12,53 @@
 #include <GLFW/glfw3.h>
 
 
+struct ShaderProgramSource {
+    std::string VertexShader;
+    std::string FragmentShader;
+};
+
+static ShaderProgramSource parseShader(const std::string& filePath) {
+    std::ifstream stream(filePath);
+
+    enum class ShaderType {
+        NONE = -1, VERTEX = 0, FRAGMENT = 1
+    };
+
+    std::stringstream ss[2];
+
+    // Check if the file is open, which indicates that it exists
+    if (stream.is_open()) {
+        std::cout << "File exists." << std::endl;
+        
+        std::string line;
+        ShaderType type = ShaderType::NONE;
+
+        while(getline(stream, line)) {
+            if (line.find("#shader") != std::string::npos) {
+                if (line.find("vertex") != std::string::npos) {
+                    type = ShaderType::VERTEX;
+                } else if (line.find("fragment") != std::string::npos) {
+                    type = ShaderType::FRAGMENT;
+                }
+            } else {
+                ss[(int)type] << line << "\n";
+            }
+        }
+
+        // Close the file after using it
+        stream.close();
+    } else {
+        std::cout << "File does not exist." << std::endl;
+    }
+
+    return {ss[0].str(), ss[1].str()};
+}
+
 // Function prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
-
-// Shaders sources
-const GLchar* vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 position;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-    "}\0";
-const GLchar* fragmentShaderSource = "#version 330 core\n"
-    "out vec4 color;\n"
-    "void main()\n"
-    "{\n"
-    "color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
 
 /**
  * @brief function to compile the source code for a shader
@@ -123,8 +155,17 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);  
     glViewport(0, 0, width, height);
 
-    // Create the shader program from the shader sources
-    GLuint shaderProgram = CreateShader(vertexShaderSource, fragmentShaderSource);
+    // // Get the current working directory
+    // std::filesystem::path currentPath = std::filesystem::current_path();
+    // // Print the current working directory
+    // std::cout << "Current working directory: " << currentPath << std::endl;
+    
+
+    ShaderProgramSource source = parseShader("../res/shaders/Basic.shader");
+    // // Create the shader program from the shader sources
+    GLuint shaderProgram = CreateShader(source.VertexShader, source.FragmentShader);
+
+
 
 
     //////// 1 SIMPLE TRIANGLE
@@ -171,48 +212,7 @@ int main()
     glBindVertexArray(0); 
 
 
-/* 2 triangles
-    // Set up vertex data (and buffer(s)) and attribute pointers
-    //GLfloat vertices[] = {
-    //  // First triangle
-    //   0.5f,  0.5f,  // Top Right
-    //   0.5f, -0.5f,  // Bottom Right
-    //  -0.5f,  0.5f,  // Top Left 
-    //  // Second triangle
-    //   0.5f, -0.5f,  // Bottom Right
-    //  -0.5f, -0.5f,  // Bottom Left
-    //  -0.5f,  0.5f   // Top Left
-    //}; 
-    GLfloat vertices[] = {
-         0.5f,  0.5f, 0.0f,  // Top Right
-         0.5f, -0.5f, 0.0f,  // Bottom Right
-        -0.5f, -0.5f, 0.0f,  // Bottom Left
-        -0.5f,  0.5f, 0.0f   // Top Left 
-    };
-    GLuint indices[] = {  // Note that we start from 0!
-        0, 1, 3,  // First Triangle
-        1, 2, 3   // Second Triangle
-    };
-    GLuint VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
-    glBindVertexArray(VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
-
-    glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
-*/
 
     // Uncommenting this call will result in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -228,27 +228,25 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-/* 2 triangles
-        // Draw our first triangle
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-*/
 
+
+
+        // 1 TRIENGLE
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
 
 
+
+
         // Swap the screen buffers
         glfwSwapBuffers(window);
     }
     // Properly de-allocate all resources once they've outlived their purpose
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    // glDeleteVertexArrays(1, &VAO);
+    // glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shaderProgram);
 
 /* 2 triangles
     glDeleteBuffers(1, &EBO);
