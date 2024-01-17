@@ -248,9 +248,6 @@ int main()
     // glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
 
-/* 2 triangles
-    glDeleteBuffers(1, &EBO);
-*/
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
     return 0;

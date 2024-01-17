@@ -1,2 +1,2 @@
 ## start using modern opengl
-- write shader (vertex and fragment) definition in an external file
+- use index buffer to be more efficient and avoid to repeat vertices declaration
