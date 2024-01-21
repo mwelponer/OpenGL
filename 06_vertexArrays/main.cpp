@@ -207,24 +207,28 @@ int main()
         0, 1, 3,  // First Triangle
         1, 2, 3   // Second Triangle
     };
-    GLuint VBO, VAO, EBO;
-    GLCall( glGenVertexArrays(1, &VAO) );
-    GLCall( glGenBuffers(1, &VBO) );
-    GLCall( glGenBuffers(1, &EBO) );
-    // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+
+    GLuint VBO, VAO, IBO;
+    GLCall( glGenVertexArrays(1, &VAO) ); // generate 1 vertex array 
+    GLCall( glGenBuffers(1, &VBO) ); // generate 1 vertex buffer
+    GLCall( glGenBuffers(1, &IBO) ); // generate 1 index buffer
+
+    // Bind the Vertex Array Object first
     GLCall( glBindVertexArray(VAO) );
 
+    // Select vertex buffer
     GLCall( glBindBuffer(GL_ARRAY_BUFFER, VBO) );
     GLCall( glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW) );
-
-    GLCall( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO) );
-    GLCall( glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW) );
-
+    // bind index 0 of vertex array with the currently bound GL_ARRAY_BUFFER, i.e. VBO
     GLCall( glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0) );
     GLCall( glEnableVertexAttribArray(0) );
 
-    GLCall( glBindBuffer(GL_ARRAY_BUFFER, 0) ); // Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
+    // Select index buffer
+    GLCall( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO) );
+    GLCall( glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW) );
 
+    // Unbind
+    GLCall( glBindBuffer(GL_ARRAY_BUFFER, 0) ); // Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
     GLCall( glBindVertexArray(0) ); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
 
 
@@ -280,7 +284,7 @@ int main()
 
 
         //ASSERT(GLLogCall());
-        GLCall( glBindVertexArray(0) );
+        GLCall( glBindVertexArray(0) ); // unbind
 
 
 
