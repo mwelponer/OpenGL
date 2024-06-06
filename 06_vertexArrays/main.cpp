@@ -256,20 +256,14 @@ int main()
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         GLCall( glfwPollEvents() );
 
-        // Render
         // Clear the colorbuffer
         GLCall( glClearColor(0.1f, 0.1f, 0.1f, 1.0f) );
         GLCall( glClear(GL_COLOR_BUFFER_BIT) );
 
 
 
-
         // 2 TRIENGLES
         GLCall( glBindVertexArray(VAO) );
-
-        //GLClearError();
-        // so here I have introduced on purpose an error: 
-        // GL_INT instead of GL_UNSIGNED_INT
 
         // once I have the location I set my data in my shader
         GLCall( glUniform4f(location, r, 0.3f, 0.8f, 1.0f) );
@@ -282,10 +276,7 @@ int main()
 
         r += increment;
 
-
-        //ASSERT(GLLogCall());
         GLCall( glBindVertexArray(0) ); // unbind
-
 
 
 
